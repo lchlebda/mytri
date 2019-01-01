@@ -1,6 +1,7 @@
 package com.mytri.db.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.mytri.db.enums.Sport;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -16,7 +17,7 @@ public class Activity {
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
     @Column(name="ID")
-    @Getter @Setter private Integer id;
+    @Getter @Setter private Long id;
 
     @ManyToOne
     @JoinColumn(name="user_name")
@@ -27,7 +28,8 @@ public class Activity {
     @Getter @Setter private LocalDate date;
 
     @NotNull
-    @Getter @Setter private String sport;
+    @Enumerated(EnumType.STRING)
+    @Getter @Setter private Sport sport;
 
     @NotNull
     @Getter @Setter private Integer duration;
@@ -46,7 +48,7 @@ public class Activity {
     @Getter @Setter private Integer elevation;
     @Getter @Setter private String pace;
     @Getter @Setter private Double speed;
-    @Getter @Setter private Double distance;
+    @Getter @Setter private Integer distance;
     @Getter @Setter private String comments;
     @Getter @Setter private String garmin;
     @Getter @Setter private String strava;

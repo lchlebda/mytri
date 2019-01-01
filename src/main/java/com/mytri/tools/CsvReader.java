@@ -1,5 +1,6 @@
 package com.mytri.tools;
 
+import com.mytri.db.enums.Sport;
 import com.mytri.db.model.Activity;
 import com.mytri.db.model.User;
 import org.springframework.stereotype.Component;
@@ -52,21 +53,21 @@ public class CsvReader {
                 case 5: fieldsMap.put(DURATION, getNumberOrZero(
                                                     parseNotEmptyField(record[i], DURATION, record[2])));
                                                 break;
-                case 6: fieldsMap.put(REGENERATION, getNumberOrZero(record[i])); break;
-                case 7: fieldsMap.put(HR, getNumberOrZero(record[i])); break;
-                case 8: fieldsMap.put(HRMAX, getNumberOrZero(record[i])); break;
-                case 9: fieldsMap.put(CADENCE, getNumberOrZero(record[i])); break;
-                case 10: fieldsMap.put(POWER, getNumberOrZero(record[i])); break;
-                case 11: fieldsMap.put(EF, getNumberOrZero(record[i])); break;
-                case 12: fieldsMap.put(TSS, getNumberOrZero(record[i])); break;
-                case 13: fieldsMap.put(ELEVATION, getNumberOrZero(record[i])); break;
-                case 14: fieldsMap.put(PACE, parsePace(record[i], record[4]));
+              //  case 6: fieldsMap.put(REGENERATION, getNumberOrZero(record[i])); break;
+                case 6: fieldsMap.put(HR, getNumberOrZero(record[i])); break;
+                case 7: fieldsMap.put(HRMAX, getNumberOrZero(record[i])); break;
+                case 8: fieldsMap.put(CADENCE, getNumberOrZero(record[i])); break;
+                case 9: fieldsMap.put(POWER, getNumberOrZero(record[i])); break;
+                case 10: fieldsMap.put(EF, getNumberOrZero(record[i])); break;
+              //  case 12: fieldsMap.put(TSS, getNumberOrZero(record[i])); break;
+                case 11: fieldsMap.put(ELEVATION, getNumberOrZero(record[i])); break;
+                case 12: fieldsMap.put(PACE, parsePace(record[i], record[4]));
                          fieldsMap.put(SPEED, parseSpeed(record[i], record[4])); break;
-                case 15: fieldsMap.put(DISTANCE, parseDistance(record[i], record[4])); break;
-                case 16: fieldsMap.put(DESCRIPTION, parseNotEmptyField(record[i], DESCRIPTION, record[2])); break;
-                case 17: fieldsMap.put(COMMENTS, record[i]); break;
-                case 18: fieldsMap.put(GARMIN, record[i]); break;
-                case 19: fieldsMap.put(STRAVA, record[i]); break;
+                case 13: fieldsMap.put(DISTANCE, parseDistance(record[i], record[4])); break;
+                case 14: fieldsMap.put(DESCRIPTION, parseNotEmptyField(record[i], DESCRIPTION, record[2])); break;
+                case 15: fieldsMap.put(COMMENTS, record[i]); break;
+                case 16: fieldsMap.put(GARMIN, record[i]); break;
+                case 17: fieldsMap.put(STRAVA, record[i]); break;
             }
         }
 
@@ -110,10 +111,22 @@ public class CsvReader {
         }
     }
 
+    private Sport mapToEnum(String sport) {
+        switch(sport) {
+            case "Pływanie": return Sport.SWIM;
+            case "Bieganie": return Sport.RUN;
+            case "Rower": return Sport.CYCLE;
+            case "Góry": return Sport.HIKE;
+            case "Siłownia": return Sport.GYM;
+            case "Narty": return Sport.SKI;
+            default: return Sport.OTHER;
+        }
+    }
+
     private final Map<Field, BiConsumer<String, Activity>> mapper = Map.ofEntries(
             entry(PERIOD, (period, activity) -> activity.setPeriod(period)),
             entry(DATE, (date, activity) -> activity.setDate(LocalDate.parse(date, FORMATTER))),
-            entry(SPORT, (sport, activity) -> activity.setSport(sport)),
+            entry(SPORT, (sport, activity) -> activity.setSport(mapToEnum(sport))),
             entry(DURATION, (duration, activity) -> activity.setDuration(Integer.valueOf(duration))),
             entry(REGENERATION, (regeneration, activity) -> activity.setRegeneration(Integer.valueOf(regeneration))),
             entry(HR, (hr, activity) -> activity.setHr(Integer.valueOf(hr))),
@@ -125,7 +138,7 @@ public class CsvReader {
             entry(ELEVATION, (elevation, activity) -> activity.setElevation(Integer.valueOf(elevation))),
             entry(PACE, (pace, activity) -> activity.setPace(pace)),
                 entry(SPEED, (speed, activity) -> activity.setSpeed(Double.valueOf(speed))),
-            entry(DISTANCE, (distance, activity) -> activity.setDistance(Double.valueOf(distance))),
+            entry(DISTANCE, (distance, activity) -> activity.setDistance(Integer.valueOf(distance))),
             entry(DESCRIPTION, (description, activity) -> activity.setDescription(description)),
             entry(COMMENTS, (comments, activity) -> activity.setComments(comments)),
             entry(GARMIN, (garmin, activity) -> activity.setGarmin(garmin)),
