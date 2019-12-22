@@ -6,8 +6,14 @@ import lombok.Getter;
 public enum ActivityType {
 
     RUNNING("running"),
+    TRAIL_RUNNING("trail_running"),
+    STREET_RUNNING("street_running"),
+    TRACK_RUNNING("track_running"),
     CYCLING("cycling"),
+    TRACK_CYCLING("track_cycling"),
+    INDOOR_CYCLING("indoor_cycling"),
     SWIMMING("swimming"),
+    LAP_SWIMMING("lap_swimming"),
     OPEN_WATER_SWIMMING("open_water_swimming"),
     ROAD_BIKING("road_biking"),
     HIKING("hiking"),

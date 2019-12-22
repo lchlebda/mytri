@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mytri.db.enums.Sport;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 public class Activity {
@@ -23,9 +21,9 @@ public class Activity {
     @JoinColumn(name="user_name")
     @Getter @Setter private User user;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-ddThh:mm")
     @NotNull
-    @Getter @Setter private LocalDate date;
+    @Getter @Setter private LocalDateTime date;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -52,5 +50,8 @@ public class Activity {
     @Getter @Setter private String comments;
     @Getter @Setter private String garmin;
     @Getter @Setter private String strava;
+
+    @Column(name="garmin_id")
+    @Getter @Setter private Long garminId;
 
 }

@@ -4,9 +4,12 @@ import com.mytri.db.model.Activity;
 import com.mytri.db.model.User;
 import com.mytri.db.repository.ActivityRepository;
 import com.mytri.db.repository.UserRepository;
+import com.mytri.garmin.model.GarminActivityDto;
 import com.mytri.garmin.service.GarminService;
+import com.mytri.services.ActivityService;
 import com.mytri.tools.CsvReader;
 import com.mytri.tools.Field;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.TransactionSystemException;
@@ -19,19 +22,14 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(path="/api")
+@RequiredArgsConstructor
 public class ActivityController {
 
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
     private final CsvReader csvReader;
     private final GarminService garminService;
-
-    public ActivityController(ActivityRepository activityRepository, UserRepository userRepository, CsvReader csvReader, GarminService garminService) {
-        this.activityRepository = activityRepository;
-        this.userRepository = userRepository;
-        this.csvReader = csvReader;
-        this.garminService = garminService;
-    }
+    private final ActivityService activityService;
 
     @GetMapping(path="/fillDataFromExcel")
     public @ResponseBody String fillDataFromExcel() throws IOException {
@@ -59,6 +57,11 @@ public class ActivityController {
         activityRepository.deleteById(activityId);
     }
 
+    @GetMapping(path="/user/{user}/update-activities")
+    public @ResponseBody GarminActivityDto[] updateActivities(@PathVariable String user) {
+        return activityService.updateActivitiesForUser(user);
+    }
+
     @GetMapping(path="/garmin/activity/{activityId}")
     public @ResponseBody Activity getActivityFromGarmin(@PathVariable String activityId) {
         Activity activity = garminService.getActivity(activityId);
@@ -70,15 +73,14 @@ public class ActivityController {
         return activity;
     }
 
-//    @GetMapping(path="/garmin/user/{user}/activities")
-//    public @ResponseBody List<Long> getActivitiesFromGarmin(@PathVariable String user,
-//                                                               @RequestParam int start,
-//                                                               @RequestParam int limit) {
-//
-//        return Arrays.stream(garminDao.getActivitiesList(user, start, limit))
-//                     .map(GarminActivityDto::getActivityId)
-//                     .collect(toList());
-//    }
+    @GetMapping(path="/garmin/user/{user}/activities")
+    @ResponseBody
+    public GarminActivityDto[] getActivitiesFromGarmin(@PathVariable String user,
+                                              @RequestParam int start,
+                                              @RequestParam int limit)   {
+
+        return garminService.getActivityFromStartToLimit(user, start, limit);
+    }
 
     @ExceptionHandler(TransactionSystemException.class)
     public ResponseEntity<String> handle(TransactionSystemException exc) {

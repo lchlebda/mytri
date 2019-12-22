@@ -5,50 +5,55 @@ import com.mytri.db.model.Activity;
 import com.mytri.garmin.dao.GarminDao;
 import com.mytri.garmin.enums.ActivityType;
 import com.mytri.garmin.model.GarminActivityDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
 @Service
+@RequiredArgsConstructor
 public class GarminService {
 
     private static final double MAGIC_GARMIN_FACTOR = 3.6;
     private static final int RUN_DIVISION_FACTOR = 3600;  // run pace is for 1km, that's why is 3600secs
     private static final int SWIM_DIVISION_FACTOR = 360;  // swim pace is for 100m, that's why is 360secs
+    private static final String GARMIN_HREF = "https://connect.garmin.com/modern/activity/";
 
     private final GarminDao garminDao;
-
-    public GarminService(GarminDao garminDao) {
-        this.garminDao = garminDao;
-    }
 
     public Activity getActivity(String id) {
         GarminActivityDto garminActivityDto = garminDao.getActivity(id);
         return mapToActivity(garminActivityDto);
     }
 
+    public GarminActivityDto[] getActivityFromStartToLimit(String user, int start, int limit) {
+        return garminDao.getActivitiesList(user, start, limit);
+    }
+
     private Activity mapToActivity(GarminActivityDto dto) {
         Activity activity = new Activity();
 
-        activity.setDistance((int)dto.getSummaryDTO().getDistance());
-        activity.setCadence(dto.getSummaryDTO().getAverageBikeCadence());
-        activity.setHrMax(dto.getSummaryDTO().getMaxHR());
-        activity.setHr(dto.getSummaryDTO().getAverageHR());
-        activity.setDate(dto.getSummaryDTO().getStartTimeLocal());
-        activity.setElevation(dto.getSummaryDTO().getElevationGain());
-        activity.setPower(dto.getSummaryDTO().getNormalizedPower());
-        activity.setTss(dto.getSummaryDTO().getTrainingStressScore());
+        activity.setGarmin(GARMIN_HREF + dto.getActivityId());
+        activity.setGarminId(dto.getActivityId());
+        activity.setDistance((int)dto.getDistance());
+        activity.setCadence(dto.getBikeCadence());
+        activity.setHrMax(dto.getMaxHR());
+        activity.setHr(dto.getAverageHR());
+        activity.setDate(dto.getStartTimeLocal());
+        activity.setElevation(dto.getElevationGain());
+        activity.setPower(dto.getNormPower());
+        activity.setTss(dto.getTss());
 
-        double speed = dto.getSummaryDTO().getAverageSpeed() * MAGIC_GARMIN_FACTOR;
+        double speed = dto.getAverageSpeed() * MAGIC_GARMIN_FACTOR;
         activity.setSpeed((double)Math.round(speed*10)/10);
 
-        Sport sport = mapToSport(dto.getActivityTypeDTO().getTypeKey());
+        Sport sport = mapToSport(dto.getActivityType().getTypeKey());
         activity.setSport(sport);
 
         String pace = mapToPace(activity.getSport(), speed);
         activity.setPace(pace);
 
-        int duration = calculateDuration(dto.getSummaryDTO().getDuration());
+        int duration = calculateDuration(dto.getDuration());
         activity.setDuration(duration);
 
         return activity;
@@ -57,8 +62,14 @@ public class GarminService {
     private Sport mapToSport(ActivityType activityType) {
         switch(activityType) {
             case CYCLING: return Sport.CYCLE;
+            case TRACK_CYCLING: return Sport.CYCLE;
+            case INDOOR_CYCLING: return Sport.CYCLE;
             case RUNNING: return Sport.RUN;
+            case TRAIL_RUNNING: return Sport.RUN;
+            case STREET_RUNNING: return Sport.RUN;
+            case TRACK_RUNNING: return Sport.RUN;
             case SWIMMING: return Sport.SWIM;
+            case LAP_SWIMMING: return Sport.SWIM;
             case HIKING: return Sport.HIKE;
             case SKIING: return Sport.SKI;
             case WALKING: return Sport.WALK;

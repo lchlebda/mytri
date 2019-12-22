@@ -7,7 +7,7 @@ import com.mytri.garmin.model.GarminActivityDto
 import com.mytri.garmin.service.GarminService
 import spock.lang.Specification
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.Month
 
 class GarminServiceTest extends Specification {
@@ -15,14 +15,13 @@ class GarminServiceTest extends Specification {
     def garminDao = Mock(GarminDao)
     def garminActivityDto = Mock(GarminActivityDto)
     def activityTypeDto = Mock(GarminActivityDto.ActivityTypeDto)
-    def summaryDto = Mock(GarminActivityDto.SummaryDto)
 
     def garminService = new GarminService(garminDao)
 
     def "run pace should be calculated from speed"(double speed, String pace) {
         setup:
             setUpGarminActivityDto(ActivityType.RUNNING)
-            summaryDto.getAverageSpeed() >> speed
+            garminActivityDto.getAverageSpeed() >> speed
 
         expect:
             garminService.getActivity("1111").getPace() == pace
@@ -38,7 +37,7 @@ class GarminServiceTest extends Specification {
     def "swim pace should be calculated from speed"(double speed, String pace) {
         setup:
             setUpGarminActivityDto(ActivityType.SWIMMING)
-            summaryDto.getAverageSpeed() >> speed
+            garminActivityDto.getAverageSpeed() >> speed
 
         expect:
             garminService.getActivity("1111").getPace() == pace
@@ -54,7 +53,7 @@ class GarminServiceTest extends Specification {
     def "speed should be calculated correctly"(double givenSpeed, double expectedSpeed) {
         setup:
             setUpGarminActivityDto(ActivityType.CYCLING)
-            summaryDto.getAverageSpeed() >> givenSpeed
+            garminActivityDto.getAverageSpeed() >> givenSpeed
 
         expect:
             garminService.getActivity("1111").getSpeed() == expectedSpeed
@@ -71,7 +70,7 @@ class GarminServiceTest extends Specification {
     def "duration should be rounded to multiply of 5"(int givenDuration, int expectedDuration) {
         setup:
             setUpGarminActivityDto(ActivityType.RUNNING)
-            summaryDto.getDuration() >> givenDuration
+            garminActivityDto.getDuration() >> givenDuration
 
         expect:
             garminService.getActivity("1111").getDuration() == expectedDuration
@@ -87,16 +86,16 @@ class GarminServiceTest extends Specification {
     def "garmin service should convert cycle object from garmin endpoint to my database dto"() {
         given:
             setUpGarminActivityDto(ActivityType.CYCLING)
-            summaryDto.getAverageSpeed() >> 8.325
-            summaryDto.getAverageHR() >> 145
-            summaryDto.getDuration() >> 1417
-            summaryDto.getElevationGain() >> 27
-            summaryDto.getMaxHR() >> 150
-            summaryDto.getStartTimeLocal() >> LocalDate.parse("2018-12-25")
-            summaryDto.getDistance() >> 4052
-            summaryDto.getAverageBikeCadence() >> 85
-            summaryDto.getNormalizedPower() >> 238
-            summaryDto.getTrainingStressScore() >> 80.3
+            garminActivityDto.getAverageSpeed() >> 8.325
+            garminActivityDto.getAverageHR() >> 145
+            garminActivityDto.getDuration() >> 1417
+            garminActivityDto.getElevationGain() >> 27
+            garminActivityDto.getMaxHR() >> 150
+            garminActivityDto.getStartTimeLocal() >> LocalDateTime.parse("2018-12-25T12:00:00")
+            garminActivityDto.getDistance() >> 4052
+            garminActivityDto.getBikeCadence() >> 85
+            garminActivityDto.getNormPower() >> 238
+            garminActivityDto.getTss() >> 80.3
 
         when:
             def activity = garminService.getActivity("1111")
@@ -119,8 +118,7 @@ class GarminServiceTest extends Specification {
 
     def setUpGarminActivityDto(activityType) {
         activityTypeDto.getTypeKey() >> activityType
-        garminActivityDto.getSummaryDTO() >> summaryDto
-        garminActivityDto.getActivityTypeDTO() >> activityTypeDto
+        garminActivityDto.getActivityType() >> activityTypeDto
         garminDao.getActivity(_) >> garminActivityDto
     }
 }

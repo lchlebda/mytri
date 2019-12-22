@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +59,7 @@ public class CsvReader {
                 case 8: fieldsMap.put(CADENCE, getNumberOrZero(record[i])); break;
                 case 9: fieldsMap.put(POWER, getNumberOrZero(record[i])); break;
                 case 10: fieldsMap.put(EF, getNumberOrZero(record[i])); break;
-              //  case 12: fieldsMap.put(TSS, getNumberOrZero(record[i])); break;
+              //  case 12: fieldsMap.put(tss, getNumberOrZero(record[i])); break;
                 case 11: fieldsMap.put(ELEVATION, getNumberOrZero(record[i])); break;
                 case 12: fieldsMap.put(PACE, parsePace(record[i], record[4]));
                          fieldsMap.put(SPEED, parseSpeed(record[i], record[4])); break;
@@ -125,7 +125,7 @@ public class CsvReader {
 
     private final Map<Field, BiConsumer<String, Activity>> mapper = Map.ofEntries(
             entry(PERIOD, (period, activity) -> activity.setPeriod(period)),
-            entry(DATE, (date, activity) -> activity.setDate(LocalDate.parse(date, FORMATTER))),
+            entry(DATE, (date, activity) -> activity.setDate(LocalDateTime.parse(date, FORMATTER))),
             entry(SPORT, (sport, activity) -> activity.setSport(mapToEnum(sport))),
             entry(DURATION, (duration, activity) -> activity.setDuration(Integer.valueOf(duration))),
             entry(REGENERATION, (regeneration, activity) -> activity.setRegeneration(Integer.valueOf(regeneration))),
